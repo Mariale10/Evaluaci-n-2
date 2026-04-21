@@ -5,7 +5,7 @@ from time import time
 class Blockchain:
     def __init__(self):
         self.chain = []
-        # Bloque inicial obligatorio
+        # Crear el primer bloque (Bloque Génesis)
         self.create_block(proof=1, previous_hash='0', data="Bloque Génesis")
 
     def create_block(self, proof, previous_hash, data):
@@ -16,19 +16,19 @@ class Blockchain:
             'proof': proof,
             'previous_hash': previous_hash
         }
-        # El sellado del bloque usa SHA-256
+        # Se genera el sello de seguridad usando SHA-256
         block['hash'] = self.hash(block)
         self.chain.append(block)
         return block
 
     def hash(self, block):
-        # Aseguramos que el JSON sea consistente para el hashing
+        # El bloque se convierte en texto para poder generar el hash
         encoded_block = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(encoded_block).hexdigest()
 
-# Simulación de intercambio entre Servidor A y Servidor B
-ucompensar_net = Blockchain()
-ucompensar_net.create_block(proof=100, previous_hash=ucompensar_net.chain[-1]['hash'], data="Mensaje: Conexión Servidor A OK")
-ucompensar_net.create_block(proof=200, previous_hash=ucompensar_net.chain[-1]['hash'], data="Mensaje: Respuesta Servidor B OK")
+# Simulación de mensajes entre servidores
+my_blockchain = Blockchain()
+my_blockchain.create_block(proof=100, previous_hash=my_blockchain.chain[-1]['hash'], data="Mensaje de Servidor A a B")
 
-print(json.dumps(ucompensar_net.chain, indent=4))
+# Mostrar la cadena de bloques resultante
+print(json.dumps(my_blockchain.chain, indent=4))
