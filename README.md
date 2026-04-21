@@ -50,14 +50,69 @@ Utilizan protocolos como **FIDO2** o **BioAPI** y mecanismos de seguridad como e
 
 ---
 
-## 3. Parte Empírica: Desarrollo de Blockchain Mensajería
+# 3. Parte Empírica: Implementación de Blockchain para Mensajería
 
-### Funcionalidad y Paso a Paso
-Esta blockchain permite enviar mensajes cifrados entre dos servidores (Nodo A y Nodo B).
-1. **Creación del bloque:** Cada mensaje se agrupa con un timestamp, un índice y el hash del bloque anterior.
-2. **Encriptación:** Se utiliza el algoritmo **SHA-256** para garantizar la integridad de cada bloque.
-3. **Consenso:** Ambos servidores validan que el hash previo coincida antes de añadir el nuevo mensaje a la cadena.
+## Descripción del Proyecto
+Se ha desarrollado una cadena de bloques (Blockchain) diseñada para permitir el intercambio de mensajes seguros e inmutables entre dos servidores. [cite_start]Esta solución garantiza que cualquier mensaje enviado no pueda ser alterado sin romper la integridad de toda la cadena[cite: 37].
 
+## Paso a Paso de la Funcionalidad
+La cadena opera bajo el siguiente flujo lógico:
+1. **Instanciación:** Se crea el "Bloque Génesis", que es el primer bloque de la cadena con un hash previo de "0".
+2. **Creación de Mensaje:** El Servidor A genera un mensaje (Data).
+3. [cite_start]**Generación de Bloque:** El sistema toma el mensaje, el índice, la marca de tiempo y el Hash del bloque anterior para crear un nuevo bloque[cite: 37].
+4. **Validación:** El Servidor B recibe el bloque y verifica que el `hash_previo` coincida con el hash del último bloque en su registro local.
+5. **Sincronización:** Si es válido, el bloque se añade a la cadena compartida.
+
+## Aspectos Técnicos
+
+### [cite_start]¿Cómo se crea un bloque? [cite: 38]
+Un bloque se crea mediante un proceso de empaquetado de datos que incluye:
+* **Índice:** La posición del bloque en la cadena.
+* **Timestamp:** Fecha y hora exacta de la creación.
+* **Data:** El contenido del mensaje enviado entre los servidores.
+* **Previous Hash:** El enlace criptográfico con el bloque anterior.
+* **Nonce:** Un número aleatorio utilizado para el proceso de minería (Proof of Work).
+* **Hash:** El identificador único generado mediante SHA-256 que sella el bloque.
+
+### [cite_start]¿Qué tipo de encriptación se maneja en Blockchain? [cite: 39]
+* **Hashing Criptográfico (SHA-256):** No es encriptación en el sentido estricto (ya que es unidireccional), pero se usa para asegurar la integridad. Si un solo bit del mensaje cambia, el Hash resultante será completamente diferente.
+* **Criptografía de Clave Asimétrica (ECDSA):** Utilizada para firmar los mensajes, asegurando que solo los servidores autorizados puedan emitir nuevos bloques.
+
+---
+
+## Código de Simulación (Python)
+Puedes ejecutar este código para demostrar la creación de la cadena:
+
+```python
+import hashlib
+import json
+from time import time
+
+class Blockchain:
+    def __init__(self):
+        self.chain = []
+        self.create_block(proof=1, previous_hash='0', data="Bloque Génesis")
+
+    def create_block(self, proof, previous_hash, data):
+        block = {
+            'index': len(self.chain) + 1,
+            'timestamp': time(),
+            'data': data,
+            'proof': proof,
+            'previous_hash': previous_hash
+        }
+        block['hash'] = self.hash(block)
+        self.chain.append(block)
+        return block
+
+    def hash(self, block):
+        encoded_block = json.dumps(block, sort_keys=True).encode()
+        return hashlib.sha256(encoded_block).hexdigest()
+
+# Simulación de mensajes entre servidores
+my_blockchain = Blockchain()
+my_blockchain.create_block(proof=100, previous_hash=my_blockchain.chain[-1]['hash'], data="Mensaje de Servidor A a B")
+print(json.dumps(my_blockchain.chain, indent=4))
 **¿Cómo se crea un bloque?**
 Se toma la información (Data), el Hash anterior y un "Nonce". Se aplica la función hash hasta que el resultado cumpla con la dificultad de la red.
 
